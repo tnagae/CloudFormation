@@ -1,0 +1,39 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Parameters:
+  InstanceTypeParameter:
+    Type: String
+    Default: t2.micro
+    Description: Default is t2.micro.
+  KeyName:
+    Description: Amazon EC2 Key Pair
+    Type: "AWS::EC2::KeyPair::KeyName"
+Mappings:
+  RegionMap:
+    ap-northeast-1:
+      "HVM64": "ami-0ce107ae7af2e92b5"
+Resources:
+  EC2Instance:
+    Type: AWS::EC2::Instance
+    Properties:
+      ImageId:
+        Fn::FindInMap:
+          - "RegionMap"
+          - Ref: "AWS::Region"
+          - "HVM64"
+      InstanceType:
+        Ref: InstanceTypeParameter
+      SubnetId: !ImportValue tweetapp2Subnet1a
+      InstanceInitiatedShutdownBehavior: stop
+      Tenancy: default
+      Tags:
+        - Key: "Name"
+          Value: "tweetapp2-instance"
+      SecurityGroupIds:
+        - !ImportValue VpcSecurityGroup
+      KeyName:
+        Ref: KeyName
+Outputs:
+  EC2Instance:
+    Value: !Ref EC2Instance
+    Export:
+      Name: EC2Instance
