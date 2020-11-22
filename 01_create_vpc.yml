@@ -1,0 +1,81 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Resources:
+  VPCfortweetapp2:
+    Type: AWS::EC2::VPC
+    Properties:
+      CidrBlock: 10.0.0.0/16
+      InstanceTenancy: default
+      Tags:
+      - Key: Name
+        Value: VPC_for_tweetapp2
+  tweetapp2Subnet1a:
+    Type: AWS::EC2::Subnet
+    DependsOn: AttachGateway
+    Properties:
+      AvailabilityZone: ap-northeast-1a
+      CidrBlock: 10.0.0.0/24
+      MapPublicIpOnLaunch: 'true'
+      VpcId: !Ref VPCfortweetapp2
+      Tags:
+      - Key: Name
+        Value: tweetapp2-Subnet-1a
+  tweetapp2Subnet1c:
+    Type: AWS::EC2::Subnet
+    DependsOn: AttachGateway
+    Properties:
+      AvailabilityZone: ap-northeast-1c
+      CidrBlock: 10.0.1.0/24
+      MapPublicIpOnLaunch: 'true'
+      VpcId: !Ref VPCfortweetapp2
+      Tags:
+      - Key: Name
+        Value: tweetapp2-Subnet-1c
+  Gatewayfortweetapp2:
+    Type: AWS::EC2::InternetGateway
+    Properties:
+      Tags:
+      - Key: Name
+        Value: Gateway_for_tweetapp2
+  AttachGateway:
+    Type: AWS::EC2::VPCGatewayAttachment
+    Properties:
+      VpcId: !Ref VPCfortweetapp2
+      InternetGatewayId: !Ref Gatewayfortweetapp2
+  Tablefortweetapp2:
+    Type: AWS::EC2::RouteTable
+    DependsOn: AttachGateway
+    Properties:
+      VpcId: !Ref VPCfortweetapp2
+      Tags:
+      - Key: Name
+        Value: Table_for_tweetapp2
+  Route:
+    Type: AWS::EC2::Route
+    DependsOn: AttachGateway
+    Properties:
+      RouteTableId: !Ref Tablefortweetapp2
+      DestinationCidrBlock: 0.0.0.0/0
+      GatewayId: !Ref Gatewayfortweetapp2
+  SubnetRouteTableAssociation1a:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      SubnetId: !Ref tweetapp2Subnet1a
+      RouteTableId: !Ref Tablefortweetapp2
+  SubnetRouteTableAssociation1c:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      SubnetId: !Ref tweetapp2Subnet1c
+      RouteTableId: !Ref Tablefortweetapp2
+Outputs:
+  VPCfortweetapp2:
+    Value: !Ref VPCfortweetapp2
+    Export:
+      Name: VPCfortweetapp2
+  tweetapp2Subnet1a:
+    Value: !Ref tweetapp2Subnet1a
+    Export:
+      Name: tweetapp2Subnet1a
+  tweetapp2Subnet1c:
+    Value: !Ref tweetapp2Subnet1c
+    Export:
+      Name: tweetapp2Subnet1c
