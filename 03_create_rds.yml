@@ -1,0 +1,57 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Parameters:
+  DBInstanceClass:
+    Default: db.t2.micro
+    Description: DB instance class
+    Type: String
+    ConstraintDescription: Must select a valid DB instance type.
+  DBAllocatedStorage:
+    Default: '20'
+    Description: The size of the database (GiB)
+    Type: Number
+    MinValue: '5'
+    MaxValue: '1024'
+    ConstraintDescription: must be between 20 and 65536 GiB.
+  DBPort:
+    Default: 3306
+    Description: TCP/IP port for the database
+    Type: Number
+    MinValue: 1150
+    MaxValue: 65535
+  DBName:
+    Default: tweetapp2production
+    Description: My database
+    Type: String
+    MinLength: '1'
+    MaxLength: '64'
+    AllowedPattern: '[a-zA-Z][a-zA-Z0-9]*'
+    ConstraintDescription: Must begin with a letter and contain only alphanumeric characters.
+Resources:
+  DBSubnetGroup:
+    Type: AWS::RDS::DBSubnetGroup
+    Properties:
+      DBSubnetGroupDescription: DB Subnet Group for tweetapp2
+      DBSubnetGroupName: tweetapp2DB-Subnet-Group
+      SubnetIds:
+        - !ImportValue tweetapp2Subnet1a
+        - !ImportValue tweetapp2Subnet1c
+  Tweetapp2DBInstance:
+    Type: AWS::RDS::DBInstance
+    Properties:
+      Engine: MySQL
+      EngineVersion: 8.0.20
+      #DBインスタンスの名前　DBインスタンス識別子
+      DBInstanceIdentifier: tweetapp2-mysql
+      MasterUsername: mastertomo
+      MasterUserPassword: tomomaster
+      DBInstanceClass: !Ref DBInstanceClass
+      AllocatedStorage: !Ref DBAllocatedStorage
+      DBSubnetGroupName: !Ref DBSubnetGroup
+      PubliclyAccessible: false
+      VPCSecurityGroups:
+        - !ImportValue VpcSecurityGroup
+      Port: !Ref DBPort
+      DBName: !Ref DBName
+      DBParameterGroupName: default.mysql8.0
+      OptionGroupName: default:mysql-8-0
+      BackupRetentionPeriod: 1
