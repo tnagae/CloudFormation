@@ -1,0 +1,37 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Resources:
+  ElasticLoadBalancer:
+    Type: AWS::ElasticLoadBalancingV2::LoadBalancer
+    Properties:
+      Type: application
+      Name: Tweetapp2-ELB
+      Scheme: internet-facing
+      IpAddressType: ipv4
+      Subnets:
+        - !ImportValue tweetapp2Subnet1a
+        - !ImportValue tweetapp2Subnet1c
+      Tags:
+        - Key: Name
+          Value: tweetapp2-Webserver
+      SecurityGroups:
+        - !ImportValue VpcSecurityGroup
+  ELBTargetGroup:
+    Type: AWS::ElasticLoadBalancingV2::TargetGroup
+    Properties:
+      Name: tweetapp2-Target-Group
+      TargetType: instance
+      Protocol: HTTP
+      Port: 80
+      HealthCheckProtocol: HTTP
+      HealthCheckPath: /
+      HealthCheckPort: traffic-port
+      HealthyThresholdCount: 5
+      UnhealthyThresholdCount: 2
+      HealthCheckTimeoutSeconds: 5
+      HealthCheckIntervalSeconds: 10
+      Matcher:
+        HttpCode: '200'
+      Targets:
+        - Id: !ImportValue EC2Instance
+          Port: 80
+      VpcId: !ImportValue VPCfortweetapp2
