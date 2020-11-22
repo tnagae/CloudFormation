@@ -1,0 +1,22 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Resources:
+  VpcSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Security for tweetapp2
+      GroupName: tweetapp2-SecurityGroup
+      VpcId: !ImportValue VPCfortweetapp2
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: '22'
+          ToPort: '22'
+          CidrIp: 222.6.63.118/32
+        - IpProtocol: tcp
+          FromPort: '80'
+          ToPort: '80'
+          CidrIp: 0.0.0.0/0
+Outputs:
+  VpcSecurityGroup:
+    Value: !Ref VpcSecurityGroup
+    Export:
+      Name: VpcSecurityGroup
